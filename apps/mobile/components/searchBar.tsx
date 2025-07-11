@@ -7,7 +7,7 @@ import {
   Pressable,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import { styles } from "./styles";
+import { styles } from "../style/styles";
 
 type Suggestion = { description: string; place_id: string };
 

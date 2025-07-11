@@ -1,7 +1,7 @@
 import { View, Text, Button } from "react-native";
 import SearchBar from "@/components/searchBar";
 import useLocationAlarm from "@/hooks/useLocationAlarm";
-import { styles } from "@/components/styles";
+import { styles } from "@/style/styles";
 
 export default function HomeScreen() {
   const {
