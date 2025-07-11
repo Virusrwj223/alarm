@@ -139,7 +139,7 @@ export default function MapScreen() {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Search location"
+          placeholder="Search location / Map select"
           value={search}
           onChangeText={(text) => {
             setSearch(text);
