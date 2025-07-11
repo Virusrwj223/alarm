@@ -4,32 +4,14 @@ import useLocationAlarm from "@/hooks/useLocationAlarm";
 import { styles } from "@/style/styles";
 
 export default function HomeScreen() {
-  const {
-    destination,
-    setDestination,
-    suggestions,
-    fetchSuggestions,
-    handleGeocodeSelection,
-    startAlarm,
-    cancelAlarm,
-    alarmSet,
-    statusMessage,
-  } = useLocationAlarm();
+  const { destination, alarmSet, startAlarm, cancelAlarm, statusMessage } =
+    useLocationAlarm();
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>📍 Location-Based Alarm</Text>
 
-      <SearchBar
-        value={destination}
-        onChange={(text) => {
-          setDestination(text);
-          fetchSuggestions(text);
-        }}
-        suggestions={suggestions}
-        onSelect={handleGeocodeSelection}
-        onSubmit={() => handleGeocodeSelection(destination)}
-      />
+      <SearchBar />
 
       <View style={styles.buttonGroup}>
         <Button

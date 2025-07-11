@@ -11,6 +11,7 @@ import {
 import { playAlarmSound, stopAlarmSound } from "@/services/alarmAudio";
 import { scheduleNotification } from "@/services/notifications";
 import { Alert, Keyboard } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 
 const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey;
 
@@ -25,6 +26,8 @@ export default function useLocationAlarm() {
   const [locationPermission, setLocationPermission] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
+  const { lat, lng, address } = useLocalSearchParams();
+
   useEffect(() => {
     const requestPermissions = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -34,6 +37,34 @@ export default function useLocationAlarm() {
     };
     requestPermissions();
   }, []);
+
+  // Listen for query param updates from map.tsx
+  useEffect(() => {
+    if (lat && lng) {
+      const parsedLat = parseFloat(lat as string);
+      const parsedLng = parseFloat(lng as string);
+
+      const newCoords = {
+        latitude: parsedLat,
+        longitude: parsedLng,
+      };
+
+      const isSameCoords =
+        targetCoords &&
+        targetCoords.latitude === newCoords.latitude &&
+        targetCoords.longitude === newCoords.longitude;
+
+      if (!isSameCoords) {
+        setTargetCoords(newCoords);
+        setDestination(
+          decodeURIComponent(
+            (address as string) ?? `${parsedLat}, ${parsedLng}`
+          )
+        );
+        setStatusMessage("Target location set.");
+      }
+    }
+  }, [lat, lng, address]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
