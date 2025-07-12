@@ -1,32 +1,27 @@
-import { useState, useEffect } from "react";
-import { Keyboard } from "react-native";
+// hooks/useLocationAlarm.ts
+import useDestination from "./useDestination";
+import usePermissions from "./usePermissions";
+import useAlarm from "./useAlarm";
 import { useLocalSearchParams } from "expo-router";
-import Constants from "expo-constants";
-import { requestAppPermissions } from "@/services/permissions";
-import { startLocationAlarm } from "@/services/alarmAudio";
-import {
-  fetchAutocompleteSuggestions,
-  geocodeFromTextOrPlaceId,
-} from "@/utils/geocode";
-
-const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey;
+import { useState, useEffect } from "react";
 
 export default function useLocationAlarm() {
-  const [destination, setDestination] = useState("");
-  const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [targetCoords, setTargetCoords] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const {
+    destination,
+    setDestination,
+    targetCoords,
+    setTargetCoords,
+    suggestions,
+    fetchSuggestions,
+    handleGeocodeSelection,
+    setStatusMessage,
+    statusMessage,
+  } = useDestination();
+
+  const locationPermission = usePermissions();
   const [alarmSet, setAlarmSet] = useState(false);
-  const [locationPermission, setLocationPermission] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
 
   const { lat, lng, address } = useLocalSearchParams();
-
-  useEffect(() => {
-    requestAppPermissions().then(setLocationPermission);
-  }, []);
 
   useEffect(() => {
     if (!lat || !lng) return;
@@ -34,47 +29,17 @@ export default function useLocationAlarm() {
     const parsedLat = parseFloat(lat as string);
     const parsedLng = parseFloat(lng as string);
 
-    const newCoords = { latitude: parsedLat, longitude: parsedLng };
-
-    setTargetCoords(newCoords);
+    const coords = { latitude: parsedLat, longitude: parsedLng };
+    setTargetCoords(coords);
     setDestination(
       decodeURIComponent((address as string) ?? `${parsedLat}, ${parsedLng}`)
     );
     setStatusMessage("Target location set.");
   }, [lat, lng, address]);
 
-  useEffect(() => {
-    let interval: any;
-
-    if (alarmSet && targetCoords && locationPermission) {
-      interval = startLocationAlarm(targetCoords, () => setAlarmSet(false));
-    }
-
-    return () => clearInterval(interval);
-  }, [alarmSet, targetCoords, locationPermission]);
-
-  const fetchSuggestions = async (text: string) => {
-    const results = await fetchAutocompleteSuggestions(text, GOOGLE_API_KEY);
-    setSuggestions(results);
-  };
-
-  const handleGeocodeSelection = async (text: string, placeId?: string) => {
-    try {
-      Keyboard.dismiss();
-      setSuggestions([]);
-      setStatusMessage("Looking up address...");
-      const coords = await geocodeFromTextOrPlaceId(
-        text,
-        placeId,
-        GOOGLE_API_KEY
-      );
-      setTargetCoords(coords);
-      setDestination(text);
-      setStatusMessage("Target location set.");
-    } catch {
-      setStatusMessage("Error resolving location.");
-    }
-  };
+  useAlarm(alarmSet, targetCoords, locationPermission, () =>
+    setAlarmSet(false)
+  );
 
   return {
     destination,
