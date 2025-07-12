@@ -30,6 +30,12 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="map"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
