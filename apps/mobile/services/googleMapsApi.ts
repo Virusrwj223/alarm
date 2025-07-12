@@ -24,10 +24,6 @@ export async function fetchAutocompleteSuggestions(
     );
 
     return res.data.predictions;
-    // .map((p: any) => ({
-    //   description: p.description,
-    //   place_id: p.place_id,
-    // }));
   } catch (err) {
     console.error("Autocomplete error:", err);
     return [];

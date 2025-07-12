@@ -1,7 +1,6 @@
 // hooks/useDestination.ts
 import { useState } from "react";
 import { Keyboard } from "react-native";
-import Constants from "expo-constants";
 import {
   fetchAutocompleteSuggestions,
   geocodeFromTextOrPlaceId,
