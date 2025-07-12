@@ -4,6 +4,7 @@ import axios from "axios";
 import { MapPressEvent } from "react-native-maps";
 import Constants from "expo-constants";
 import { Router } from "expo-router";
+import { getAddressFromCoords } from "@/services/googleMapsApi";
 
 const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey;
 
@@ -19,18 +20,8 @@ export async function handleMapPress(
   Keyboard.dismiss();
 
   try {
-    const res = await axios.get(
-      "https://maps.googleapis.com/maps/api/geocode/json",
-      {
-        params: {
-          latlng: `${coords.latitude},${coords.longitude}`,
-          key: GOOGLE_API_KEY,
-        },
-      }
-    );
-
-    const address = res.data.results[0]?.formatted_address || "Pinned Location";
-
+    const address = await getAddressFromCoords(coords);
+    if (address == null) throw new Error("reverse geocode failed");
     router.replace({
       pathname: "/",
       params: {

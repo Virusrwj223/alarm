@@ -3,6 +3,7 @@ import axios from "axios";
 import Constants from "expo-constants";
 import { Keyboard } from "react-native";
 import { Router } from "expo-router";
+import { getCoordsFromPlaceId } from "@/services/googleMapsApi";
 
 const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey;
 
@@ -14,18 +15,9 @@ export async function handleSelectPlace(
   router: Router
 ) {
   try {
-    const res = await axios.get(
-      `https://maps.googleapis.com/maps/api/geocode/json`,
-      {
-        params: {
-          place_id: placeId,
-          key: GOOGLE_API_KEY,
-        },
-      }
-    );
-
-    const loc = res.data.results[0].geometry.location;
-    const coords = { latitude: loc.lat, longitude: loc.lng };
+    const loc = await getCoordsFromPlaceId(placeId);
+    if (loc == null) throw new Error("geocode error");
+    const coords = { latitude: loc.latitude, longitude: loc.longitude };
 
     setMarker(coords);
     setSuggestions([]);
