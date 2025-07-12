@@ -1,7 +1,5 @@
 // hooks/useAlarm.ts
 import { useEffect } from "react";
-import * as Location from "expo-location";
-import { getDistanceInKm } from "@/utils/distance";
 import { startLocationAlarm } from "@/services/alarmAudio";
 
 export default function useAlarm(

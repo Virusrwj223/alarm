@@ -5,9 +5,7 @@ import Constants from "expo-constants";
 import {
   fetchAutocompleteSuggestions,
   geocodeFromTextOrPlaceId,
-} from "@/utils/geocode";
-
-const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey;
+} from "@/services/googleMapsApi";
 
 export default function useDestination() {
   const [destination, setDestination] = useState("");
@@ -19,7 +17,7 @@ export default function useDestination() {
   const [statusMessage, setStatusMessage] = useState("");
 
   const fetchSuggestions = async (text: string) => {
-    const results = await fetchAutocompleteSuggestions(text, GOOGLE_API_KEY);
+    const results = await fetchAutocompleteSuggestions(text);
     setSuggestions(results);
   };
 
@@ -28,11 +26,7 @@ export default function useDestination() {
       Keyboard.dismiss();
       setSuggestions([]);
       setStatusMessage("Looking up address...");
-      const coords = await geocodeFromTextOrPlaceId(
-        text,
-        placeId,
-        GOOGLE_API_KEY
-      );
+      const coords = await geocodeFromTextOrPlaceId(text, placeId);
       setTargetCoords(coords);
       setDestination(text);
       setStatusMessage("Target location set.");

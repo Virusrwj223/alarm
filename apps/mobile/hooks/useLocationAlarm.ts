@@ -50,14 +50,12 @@ export default function useLocationAlarm() {
     startAlarm: () => {
       if (targetCoords) {
         setAlarmSet(true);
-        setStatusMessage("Alarm started. Tracking location...");
-      } else {
-        setStatusMessage("Set a location first.");
+        setStatusMessage("Target location set.");
       }
     },
     cancelAlarm: () => {
       setAlarmSet(false);
-      setStatusMessage("Alarm deactivated.");
+      setStatusMessage("");
     },
     alarmSet,
     statusMessage,

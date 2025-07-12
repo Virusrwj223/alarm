@@ -12,11 +12,7 @@ import { mapTabStyles } from "@/style/mapTabStyles";
 import useCurrentLocation from "@/hooks/map/useCurrentLocation";
 import { handleMapPress } from "@/hooks/map/useHandleMapPress";
 import { handleSelectPlace } from "@/hooks/map/useHandleSelectPlace";
-import { fetchSuggestions } from "@/hooks/map/useFetchSuggestions";
-import axios from "axios";
-import Constants from "expo-constants";
-
-const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey;
+import { fetchSuggestions } from "@/services/googleMapsApi";
 
 export default function MapScreen() {
   const router = useRouter();
