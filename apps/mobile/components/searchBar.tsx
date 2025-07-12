@@ -3,6 +3,7 @@ import { StyleSheet, View, TextInput, Pressable } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { searchBarStyles } from "@/style/components/searchBarStyles";
 
 export default function SearchBar() {
   const router = useRouter();
@@ -20,8 +21,8 @@ export default function SearchBar() {
   };
 
   return (
-    <Pressable onPress={handlePress} style={styles.searchContainer}>
-      <View style={styles.inner}>
+    <Pressable onPress={handlePress} style={searchBarStyles.searchContainer}>
+      <View style={searchBarStyles.inner}>
         <FontAwesome
           name="search"
           size={18}
@@ -29,7 +30,7 @@ export default function SearchBar() {
           style={{ marginRight: 8 }}
         />
         <TextInput
-          style={styles.input}
+          style={searchBarStyles.input}
           placeholder="Set destination location"
           value={text}
           editable={false} // Prevent editing directly
@@ -39,23 +40,3 @@ export default function SearchBar() {
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  searchContainer: {
-    width: "100%",
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: "#fff",
-  },
-  inner: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
-  },
-});

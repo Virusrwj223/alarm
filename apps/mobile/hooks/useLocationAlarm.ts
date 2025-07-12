@@ -1,17 +1,13 @@
 import { useState, useEffect } from "react";
-import * as Location from "expo-location";
-import * as Notifications from "expo-notifications";
-import * as Device from "expo-device";
+import { Keyboard } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import Constants from "expo-constants";
-import { getDistanceInKm } from "@/utils/distance";
+import { requestAppPermissions } from "@/services/permissions";
+import { startLocationAlarm } from "@/services/alarmAudio";
 import {
   fetchAutocompleteSuggestions,
   geocodeFromTextOrPlaceId,
 } from "@/utils/geocode";
-import { playAlarmSound, stopAlarmSound } from "@/services/alarmAudio";
-import { scheduleNotification } from "@/services/notifications";
-import { Alert, Keyboard } from "react-native";
-import { useLocalSearchParams } from "expo-router";
 
 const GOOGLE_API_KEY = Constants.expoConfig?.extra?.googleApiKey;
 
@@ -29,62 +25,29 @@ export default function useLocationAlarm() {
   const { lat, lng, address } = useLocalSearchParams();
 
   useEffect(() => {
-    const requestPermissions = async () => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      setLocationPermission(status === "granted");
-
-      if (Device.isDevice) await Notifications.requestPermissionsAsync();
-    };
-    requestPermissions();
+    requestAppPermissions().then(setLocationPermission);
   }, []);
 
-  // Listen for query param updates from map.tsx
   useEffect(() => {
-    if (lat && lng) {
-      const parsedLat = parseFloat(lat as string);
-      const parsedLng = parseFloat(lng as string);
+    if (!lat || !lng) return;
 
-      const newCoords = {
-        latitude: parsedLat,
-        longitude: parsedLng,
-      };
+    const parsedLat = parseFloat(lat as string);
+    const parsedLng = parseFloat(lng as string);
 
-      const isSameCoords =
-        targetCoords &&
-        targetCoords.latitude === newCoords.latitude &&
-        targetCoords.longitude === newCoords.longitude;
+    const newCoords = { latitude: parsedLat, longitude: parsedLng };
 
-      if (!isSameCoords) {
-        setTargetCoords(newCoords);
-        setDestination(
-          decodeURIComponent(
-            (address as string) ?? `${parsedLat}, ${parsedLng}`
-          )
-        );
-        setStatusMessage("Target location set.");
-      }
-    }
+    setTargetCoords(newCoords);
+    setDestination(
+      decodeURIComponent((address as string) ?? `${parsedLat}, ${parsedLng}`)
+    );
+    setStatusMessage("Target location set.");
   }, [lat, lng, address]);
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    let interval: any;
 
     if (alarmSet && targetCoords && locationPermission) {
-      interval = setInterval(async () => {
-        const currentLocation = await Location.getCurrentPositionAsync({});
-        const distance = getDistanceInKm(
-          currentLocation.coords.latitude,
-          currentLocation.coords.longitude,
-          targetCoords.latitude,
-          targetCoords.longitude
-        );
-
-        if (distance <= 1.0) {
-          triggerAlarm();
-          setAlarmSet(false);
-          clearInterval(interval);
-        }
-      }, 5000);
+      interval = startLocationAlarm(targetCoords, () => setAlarmSet(false));
     }
 
     return () => clearInterval(interval);
@@ -113,26 +76,20 @@ export default function useLocationAlarm() {
     }
   };
 
-  const triggerAlarm = async () => {
-    await playAlarmSound();
-    Alert.alert("📍 Alarm", "You're near your destination!", [
-      {
-        text: "Stop Alarm",
-        onPress: async () => {
-          await stopAlarmSound();
-        },
-      },
-    ]);
-    await scheduleNotification();
-  };
-
   return {
     destination,
     setDestination,
     suggestions,
     fetchSuggestions,
     handleGeocodeSelection,
-    startAlarm: () => setAlarmSet(true),
+    startAlarm: () => {
+      if (targetCoords) {
+        setAlarmSet(true);
+        setStatusMessage("Alarm started. Tracking location...");
+      } else {
+        setStatusMessage("Set a location first.");
+      }
+    },
     cancelAlarm: () => {
       setAlarmSet(false);
       setStatusMessage("Alarm deactivated.");
