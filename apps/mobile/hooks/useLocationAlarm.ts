@@ -4,6 +4,7 @@ import usePermissions from "./usePermissions";
 import useAlarm from "./useAlarm";
 import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
+import { useRadiusStore } from "@/stores/radiusStore";
 
 export default function useLocationAlarm() {
   const {
@@ -17,6 +18,8 @@ export default function useLocationAlarm() {
     setStatusMessage,
     statusMessage,
   } = useDestination();
+
+  const { radius, setRadius } = useRadiusStore();
 
   const locationPermission = usePermissions();
   const [alarmSet, setAlarmSet] = useState(false);
@@ -37,7 +40,7 @@ export default function useLocationAlarm() {
     setStatusMessage("Target location set.");
   }, [lat, lng, address]);
 
-  useAlarm(alarmSet, targetCoords, locationPermission, () =>
+  useAlarm(alarmSet, targetCoords, locationPermission, radius, () =>
     setAlarmSet(false)
   );
 

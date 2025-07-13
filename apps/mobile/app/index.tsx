@@ -2,6 +2,7 @@ import { View, Text, Button } from "react-native";
 import SearchBar from "@/components/searchBar";
 import useLocationAlarm from "@/hooks/useLocationAlarm";
 import { styles } from "@/style/styles";
+import HeaderFilterButton from "@/components/headerFilterButton";
 
 export default function HomeScreen() {
   const { destination, alarmSet, startAlarm, cancelAlarm, statusMessage } =
@@ -9,7 +10,10 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>📍 Location-Based Alarm</Text>
+      <View style={styles.headerRow}>
+        <Text style={styles.header}>📍 Location-Based Alarm</Text>
+        <HeaderFilterButton />
+      </View>
 
       <SearchBar />
 

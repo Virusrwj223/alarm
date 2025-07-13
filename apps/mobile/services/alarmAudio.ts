@@ -3,6 +3,7 @@ import { scheduleNotification } from "@/services/notifications";
 import { Alert } from "react-native";
 import * as Location from "expo-location";
 import { getDistanceInKm } from "@/utils/distance";
+import { useRadiusStore } from "@/stores/radiusStore";
 
 let alarmSound: Audio.Sound | null = null;
 
@@ -37,6 +38,7 @@ export async function triggerAlarm() {
 
 export const startLocationAlarm = (
   targetCoords: { latitude: number; longitude: number },
+  radius: number,
   onTrigger: () => void
 ) => {
   const interval = setInterval(async () => {
@@ -49,7 +51,7 @@ export const startLocationAlarm = (
         targetCoords.longitude
       );
 
-      if (distance <= 1.0) {
+      if (distance <= radius) {
         await triggerAlarm();
         onTrigger(); // to clear alarmSet in hook
         clearInterval(interval);
