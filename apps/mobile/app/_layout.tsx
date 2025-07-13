@@ -36,6 +36,12 @@ export default function TabLayout() {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="filterScreen"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
